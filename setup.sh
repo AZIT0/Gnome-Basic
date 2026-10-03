@@ -260,8 +260,15 @@ gaming_optimize() {
 }
 
 uninstall_all() {
-    log "Desinstalar/revertir todo lo aplicado por el script"
-    echo "Esto revertirá: atajos, flatpaks, extensiones, AUR, tweaks de sistema y servicio watcher."
+    local FULL=false
+    [ "${2:-}" = "--full" ] && FULL=true
+    log "Desinstalar/revertir lo aplicado por el script"
+    if $FULL; then
+        echo "MODO COMPLETO: además de la configuración, se desinstalarán paquetes, apps, Flatpaks y AUR."
+    else
+        echo "Modo suave: se revierte solo configuración (atajos, extensiones, tweaks, watcher)."
+        echo "Usa 'uninstall --full' para quitar también paquetes y apps instaladas."
+    fi
     read -p "¿Continuar? [y/N] " -n 1 -r || REPLY=""
     echo
     [[ $REPLY =~ ^[Yy]$ ]] || { echo "Cancelado"; exit 0; }
@@ -316,6 +323,26 @@ uninstall_all() {
     sudo cpupower frequency-set -g schedutil 2>/dev/null || true
 
     echo "✅ Todo revertido. Reinicia para aplicar todos los cambios."
+    if $FULL; then
+        echo ""
+        echo "→ Desinstalando paquetes de apps ($DISTRO)"
+        case "$DISTRO" in
+            arch)   sudo pacman -Rns --noconfirm "${PACKAGES_ARCH[@]}" preload gamemode lib32-gamemode mangohud 2>/dev/null || true ;;
+            fedora) sudo dnf remove -y "${PACKAGES_FEDORA[@]}" preload gamemode mangohud 2>/dev/null || true ;;
+        esac
+        echo "→ Desinstalando apps extra (Brave, Proton Pass, gedit, thunderbird...)"
+        case "$DISTRO" in
+            arch)   sudo pacman -Rns --noconfirm brave-bin proton-pass-bin gedit thunderbird 2>/dev/null || true ;;
+            fedora) sudo dnf remove -y brave-browser proton-pass gedit thunderbird 2>/dev/null || true ;;
+        esac
+        echo "→ Desinstalando Flatpaks de la lista"
+        for app in "${FLATPAKS[@]}"; do
+            flatpak uninstall -y "$app" 2>/dev/null || true
+        done
+        echo "→ Desinstalando gext (CLI de extensiones)"
+        pipx uninstall gnome-extensions-cli 2>/dev/null || true
+        echo "✅ Desinstalación completa."
+    fi
 }
 
 install_apps() {
@@ -552,8 +579,8 @@ case "${1:-}" in
     optimize) optimize_gnome ;;
     apps) install_apps ;;
     gaming) gaming_optimize ;;
-    uninstall) uninstall_all ;;
+    uninstall) uninstall_all "$@" ;;
     *)
-        echo "Uso: $0 [backup|restore|install|shortcuts|apply-shortcuts|watch|firefox|flatpaks|extensions|aur|optimize|apps|gaming|uninstall]"
+        echo "Uso: $0 [backup|restore|install|shortcuts|apply-shortcuts|watch|firefox|flatpaks|extensions|aur|optimize|apps|gaming|uninstall [--full]]"
         ;;
 esac
