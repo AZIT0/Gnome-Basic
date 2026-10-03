@@ -92,8 +92,11 @@ default_browser() {
         *chromium*) echo "chromium --new-window" ;;
         *chrome*) echo "google-chrome-stable --new-window" ;;
         *brave*)
-            # El binario puede ser 'brave' (AUR) o 'brave-browser' (repo)
-            if command -v brave &>/dev/null; then echo "brave --new-window"; else echo "brave-browser --new-window"; fi
+            # Binarios posibles: brave (AUR), brave-origin (Origin), brave-browser (repo)
+            for alt in brave-origin brave brave-browser; do
+                command -v "$alt" &>/dev/null && { echo "$alt --new-window"; return; }
+            done
+            echo "brave --new-window"
             ;;
         *edge*) echo "microsoft-edge --new-window" ;;
         *opera*) echo "opera --new-window" ;;
@@ -237,6 +240,7 @@ PACKAGES_ARCH=(
     power-profiles-daemon
     gedit
     thunderbird
+    brave-origin-bin
     qemu-desktop
     libvirt
     virt-manager
@@ -342,7 +346,7 @@ uninstall_all() {
         esac
         echo "→ Desinstalando apps extra (Brave, Proton Pass, gedit, thunderbird...)"
         case "$DISTRO" in
-            arch)   sudo pacman -Rns --noconfirm brave-bin proton-pass-bin gedit thunderbird 2>/dev/null || true ;;
+            arch)   sudo pacman -Rns --noconfirm brave-origin-bin proton-pass-bin gedit thunderbird 2>/dev/null || true ;;
             fedora) sudo dnf remove -y brave-browser proton-pass gedit thunderbird 2>/dev/null || true ;;
         esac
         echo "→ Desinstalando Flatpaks de la lista"
@@ -371,7 +375,6 @@ install_apps() {
 
 # Paquetes de AUR (solo Arch)
 AUR_PACKAGES=(
-    brave-bin
     proton-pass-bin
 )
 
