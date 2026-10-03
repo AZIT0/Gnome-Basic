@@ -23,7 +23,7 @@ echo "Distro detectada: $DISTRO"
 install_packages() {
     case "$DISTRO" in
         arch)
-            sudo pacman -S --needed gnome-shell gnome-control-center dconf
+            sudo pacman -S --needed --noconfirm gnome-shell gnome-control-center dconf
             ;;
         fedora)
             sudo dnf install -y gnome-shell gnome-control-center dconf
@@ -191,18 +191,20 @@ PACKAGES_ARCH=(
     gnome-tweaks
     dconf-editor
     ghostty
+    power-profiles-daemon
 )
 
 PACKAGES_FEDORA=(
     gnome-tweaks
     dconf-editor
+    power-profiles-daemon
     # ghostty: sudo dnf copr enable scottames/ghostty && sudo dnf install ghostty
 )
 
 gaming_optimize() {
     log "Gaming (GameMode + MangoHud)"
     case "$DISTRO" in
-        arch)   sudo pacman -S --needed gamemode lib32-gamemode mangohud ;;
+        arch)   sudo pacman -S --needed --noconfirm gamemode lib32-gamemode mangohud ;;
         fedora) sudo dnf install -y gamemode mangohud ;;
     esac
     echo "✅ Listo. En Steam ve a: clic derecho en el juego → Propiedades → Opciones de lanzamiento →"
@@ -266,7 +268,7 @@ uninstall_all() {
 install_apps() {
     log "Aplicaciones y tweaks"
     case "$DISTRO" in
-        arch)   sudo pacman -S --needed "${PACKAGES_ARCH[@]}" ;;
+        arch)   sudo pacman -S --needed --noconfirm "${PACKAGES_ARCH[@]}" ;;
         fedora) sudo dnf install -y "${PACKAGES_FEDORA[@]}" ;;
         *) echo "Distro no soportada" ;;
     esac
@@ -315,8 +317,8 @@ system_optimize() {
 
     echo "→ ZRAM (swap comprimida)"
     case "$DISTRO" in
-        arch)   sudo pacman -S --needed systemd-zram-generator || true ;;
-        fedora) sudo dnf install -y systemd-zram-generator || true ;;
+        arch)   sudo pacman -S --needed --noconfirm zram-generator || true ;;
+        fedora) sudo dnf install -y systemd-zram-generator || sudo dnf install -y zram-generator || true ;;
     esac
     echo "[zram0]
 zram-size = ram / 2
@@ -360,7 +362,7 @@ swap-priority = 100" | sudo tee /etc/systemd/zram-generator.conf >/dev/null || t
 
     echo "→ preload"
     case "$DISTRO" in
-        arch)   sudo pacman -S --needed preload || true ;;
+        arch)   sudo pacman -S --needed --noconfirm preload || true ;;
         fedora) sudo dnf install -y preload || true ;;
     esac
     sudo systemctl enable --now preload 2>/dev/null || true
@@ -380,11 +382,11 @@ optimize_gnome() {
         echo "→ NVIDIA: se recomienda usar el modo Wayland con el driver 555+"
     elif echo "$gpu" | grep -qi amd; then
         echo "→ AMD: instalando/verificando drivers Vulkan Radeon"
-        [ "$DISTRO" = "arch" ] && sudo pacman -S --needed vulkan-radeon lib32-vulkan-radeon
+        [ "$DISTRO" = "arch" ] && sudo pacman -S --needed --noconfirm vulkan-radeon lib32-vulkan-radeon
         [ "$DISTRO" = "fedora" ] && sudo dnf install -y mesa-vulkan-drivers
     elif echo "$gpu" | grep -qi intel; then
         echo "→ Intel: instalando/verificando drivers Vulkan Intel"
-        [ "$DISTRO" = "arch" ] && sudo pacman -S --needed vulkan-intel lib32-vulkan-intel
+        [ "$DISTRO" = "arch" ] && sudo pacman -S --needed --noconfirm vulkan-intel lib32-vulkan-intel
         [ "$DISTRO" = "fedora" ] && sudo dnf install -y mesa-vulkan-drivers
     fi
 
@@ -411,7 +413,7 @@ install_extensions() {
     if ! command -v gext &>/dev/null; then
         echo "Instalando gext..."
         case "$DISTRO" in
-            arch) sudo pacman -S --needed python-pipx && pipx ensurepath ;;
+            arch) sudo pacman -S --needed --noconfirm python-pipx && pipx ensurepath ;;
             fedora) sudo dnf install -y pipx ;;
         esac
         pipx install gnome-extensions-cli
