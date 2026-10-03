@@ -333,7 +333,7 @@ swap-priority = 100" | sudo tee /etc/systemd/zram-generator.conf >/dev/null || t
     sudo systemctl enable --now fstrim.timer || true
 
     echo "→ Power profile performance"
-    powerprofilesctl set performance 2>/dev/null || echo "   (power-profiles-daemon no disponible)"
+    powerprofilesctl set performance 2>/dev/null || echo "   (no soportado: $(powerprofilesctl set performance 2>&1 | tail -1))"
 
     echo "→ Animaciones OFF en GNOME"
     gsettings set org.gnome.desktop.interface enable-animations false || true
