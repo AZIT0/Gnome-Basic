@@ -199,12 +199,23 @@ PACKAGES_ARCH=(
     dconf-editor
     ghostty
     power-profiles-daemon
+    gedit
+    qemu-desktop
+    libvirt
+    virt-manager
+    dnsmasq
+    iptables-nft
 )
 
 PACKAGES_FEDORA=(
     gnome-tweaks
     dconf-editor
     power-profiles-daemon
+    gedit
+    qemu-kvm
+    libvirt
+    virt-manager
+    dnsmasq
     # ghostty: sudo dnf copr enable scottames/ghostty && sudo dnf install ghostty
     # brave:   sudo dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo && sudo dnf install brave-browser
 )
@@ -279,12 +290,17 @@ uninstall_all() {
 }
 
 install_apps() {
-    log "Aplicaciones y tweaks"
+    log "Aplicaciones y tweaks (incluye QEMU/libvirt/virt-manager)"
     case "$DISTRO" in
         arch)   sudo pacman -S --needed --noconfirm "${PACKAGES_ARCH[@]}" ;;
         fedora) sudo dnf install -y "${PACKAGES_FEDORA[@]}" ;;
         *) echo "Distro no soportada" ;;
     esac
+    echo "→ Habilitando libvirt (para usar KVM/virt-manager)"
+    sudo systemctl enable --now libvirtd 2>/dev/null || sudo systemctl enable --now virtqemud 2>/dev/null || true
+    echo "→ Añadiendo usuario al grupo libvirt"
+    sudo usermod -aG libvirt "$USER" 2>/dev/null || true
+    echo "(aplica el grupo tras cerrar sesión y volver a entrar)"
 }
 
 # Paquetes de AUR (solo Arch)
