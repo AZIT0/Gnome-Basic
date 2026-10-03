@@ -2,6 +2,15 @@
 
 Script para configurar GNOME rápidamente tras una reinstalación. Soporta **Arch** (CachyOS, Manjaro, EndeavourOS) y **Fedora**.
 
+## Uso con curl (sin git)
+
+```bash
+curl -fsSL https://github.com/AZIT0/Gnome-Basic/archive/refs/heads/main.tar.gz -o /tmp/gnome-basic.tar.gz
+tar xzf /tmp/gnome-basic.tar.gz -C /tmp
+cd /tmp/Gnome-Basic-main
+./install
+```
+
 ## Uso rápido (todo de una vez)
 
 ```bash
