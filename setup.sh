@@ -174,10 +174,7 @@ shortcuts() {
 
 # Lista de Flatpaks a instalar (edita aquí)
 FLATPAKS=(
-    # "com.discordapp.Discord"
-    # "com.spotify.Client"
-    # "com.valvesoftware.Steam"
-    # "org.telegram.desktop"
+    "me.proton.Pass"
 )
 
 install_flatpaks() {
@@ -209,6 +206,7 @@ PACKAGES_FEDORA=(
     dconf-editor
     power-profiles-daemon
     # ghostty: sudo dnf copr enable scottames/ghostty && sudo dnf install ghostty
+    # brave:   sudo dnf config-manager --add-repo https://brave-browser-rpm-release.s3.brave.com/brave-browser.repo && sudo dnf install brave-browser
 )
 
 gaming_optimize() {
@@ -291,8 +289,8 @@ install_apps() {
 
 # Paquetes de AUR (solo Arch)
 AUR_PACKAGES=(
-    # "yay-bin"
-    # "zen-browser-bin"
+    brave-bin
+    proton-pass-bin
 )
 
 install_aur() {
