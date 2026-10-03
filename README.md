@@ -28,6 +28,7 @@ chmod +x setup.sh
 | `optimize` | Optimizaciones GNOME + Linux (ZRAM, TRIM, BBR, etc.) |
 | `apps` | Instala gnome-tweaks, dconf-editor, ghostty |
 | `gaming` | Instala GameMode + MangoHud |
+| `uninstall` | Revierte todo lo aplicado por el script |
 
 ## Servicio de vigilancia de apps predeterminadas
 
