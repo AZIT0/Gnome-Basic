@@ -144,6 +144,9 @@ step_shortcuts() {
     dconf write /org/gnome/shell/extensions/dash-to-dock/app-hotkey-$i "@as []"
   done
 
+  # Dock transparente
+  dconf write /org/gnome/shell/extensions/dash-to-dock/transparency-mode "'FIXED'"
+
   # Asegurar workspaces fijos para que Super+1..5 siempre funcionen
   gsettings set org.gnome.mutter dynamic-workspaces false
   gsettings set org.gnome.desktop.wm.preferences num-workspaces 5
@@ -441,6 +444,7 @@ EXTENSIONS=(
     "dash-to-dock@micxgx.gmail.com"
     "just-perfection-desktop@just-perfection"
     "caffeine@patapon.info"
+    "blur-my-shell@aunetx"
 )
 
 install_extensions() {
