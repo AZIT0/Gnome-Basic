@@ -233,6 +233,8 @@ uninstall_all() {
     clear_schema org.gnome.shell.keybindings
     clear_schema org.gnome.mutter.keybindings
     clear_schema org.gnome.mutter.wayland.keybindings
+    gsettings set org.gnome.mutter dynamic-workspaces true
+    gsettings reset org.gnome.desktop.wm.preferences num-workspaces
 
     echo "→ Desinstalando Flatpaks de la lista"
     for app in "${FLATPAKS[@]}"; do
