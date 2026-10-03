@@ -51,9 +51,12 @@ restore() {
 
 log() { echo -e "\n▶ $*"; }
 
+# Vacía TODAS las teclas de un schema (para que GNOME no imponga sus propios atajos)
 clear_schema() {
     gsettings list-recursively "$1" 2>/dev/null | awk '{print $2}' | while read -r key; do
-        [ -n "$key" ] && gsettings reset "$1" "$key" 2>/dev/null || true
+        [ -n "$key" ] || continue
+        # Si es un array de strings, lo vacía; si no, vuelve al default
+        gsettings set "$1" "$key" "@as []" 2>/dev/null || gsettings reset "$1" "$key" 2>/dev/null || true
     done || true
     return 0
 }
@@ -88,7 +91,10 @@ default_browser() {
         *firefox*) echo "firefox --new-window" ;;
         *chromium*) echo "chromium --new-window" ;;
         *chrome*) echo "google-chrome-stable --new-window" ;;
-        *brave*) echo "brave-browser --new-window" ;;
+        *brave*)
+            # El binario puede ser 'brave' (AUR) o 'brave-browser' (repo)
+            if command -v brave &>/dev/null; then echo "brave --new-window"; else echo "brave-browser --new-window"; fi
+            ;;
         *edge*) echo "microsoft-edge --new-window" ;;
         *opera*) echo "opera --new-window" ;;
         *)
