@@ -146,6 +146,11 @@ step_shortcuts() {
 
   # Dock transparente
   dconf write /org/gnome/shell/extensions/dash-to-dock/transparency-mode "'FIXED'"
+  # Dock: ocultar Trash y Discos, mostrar solo Show Apps
+  dconf write /org/gnome/shell/extensions/dash-to-dock/show-trash false
+  dconf write /org/gnome/shell/extensions/dash-to-dock/show-mounts false
+  dconf write /org/gnome/shell/extensions/dash-to-dock/show-mounts-network false
+  dconf write /org/gnome/shell/extensions/dash-to-dock/show-show-apps-button true
 
   # Asegurar workspaces fijos para que Super+1..5 siempre funcionen
   gsettings set org.gnome.mutter dynamic-workspaces false
