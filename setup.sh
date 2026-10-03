@@ -346,7 +346,7 @@ uninstall_all() {
         esac
         echo "→ Desinstalando apps extra (Brave, Proton Pass, gedit, thunderbird...)"
         case "$DISTRO" in
-            arch)   sudo pacman -Rns --noconfirm brave-origin-bin proton-pass-bin gedit thunderbird 2>/dev/null || true ;;
+            arch)   sudo pacman -Rns --noconfirm brave-origin-bin gedit thunderbird 2>/dev/null || true ;;
             fedora) sudo dnf remove -y brave-browser proton-pass gedit thunderbird 2>/dev/null || true ;;
         esac
         echo "→ Desinstalando Flatpaks de la lista"
@@ -373,10 +373,8 @@ install_apps() {
     echo "(aplica el grupo tras cerrar sesión y volver a entrar)"
 }
 
-# Paquetes de AUR (solo Arch)
-AUR_PACKAGES=(
-    proton-pass-bin
-)
+# Paquetes de AUR (solo Arch) - vacío: todo se instala desde repos oficiales
+AUR_PACKAGES=()
 
 install_aur() {
     if [ "$DISTRO" != "arch" ]; then
