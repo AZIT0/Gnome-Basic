@@ -261,6 +261,9 @@ uninstall_all() {
     sudo sed -i 's/^SystemMaxUse=200M/#SystemMaxUse=/' /etc/systemd/journald.conf
     sudo systemctl restart systemd-journald || true
     sudo systemctl disable fstrim.timer 2>/dev/null || true
+    sudo systemctl disable --now cpufreq-performance.service 2>/dev/null || true
+    sudo rm -f /etc/systemd/system/cpufreq-performance.service
+    sudo cpupower frequency-set -g schedutil 2>/dev/null || true
 
     echo "✅ Todo revertido. Reinicia para aplicar todos los cambios."
 }
@@ -333,7 +336,11 @@ swap-priority = 100" | sudo tee /etc/systemd/zram-generator.conf >/dev/null || t
     sudo systemctl enable --now fstrim.timer || true
 
     echo "→ Power profile performance"
-    powerprofilesctl set performance 2>/dev/null || echo "   (no soportado: $(powerprofilesctl set performance 2>&1 | tail -1))"
+    powerprofilesctl set performance 2>/dev/null || echo "   (power-profiles-daemon no compatible, usamos cpupower)"
+    echo "→ CPU governor performance (persiste tras reiniciar)"
+    sudo cpupower frequency-set -g performance 2>/dev/null || echo "   (cpupower no disponible)"
+    printf '[Unit]\nDescription=CPU governor performance\nAfter=multi-user.target\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/cpupower frequency-set -g performance\n\n[Install]\nWantedBy=multi-user.target\n' | sudo tee /etc/systemd/system/cpufreq-performance.service >/dev/null
+    sudo systemctl enable cpufreq-performance.service 2>/dev/null || true
 
     echo "→ Animaciones OFF en GNOME"
     gsettings set org.gnome.desktop.interface enable-animations false || true
