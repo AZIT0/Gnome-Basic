@@ -108,7 +108,7 @@ default_filemanager() {
 default_terminal() {
     local t
     t=$(gsettings get org.gnome.desktop.default-applications.terminal exec 2>/dev/null | tr -d "'")
-    if [ -n "$t" ] && [ "$t" != "null" ]; then
+    if [ -n "$t" ] && [ "$t" != "null" ] && command -v "$t" &>/dev/null; then
         echo "$t"
         return
     fi
