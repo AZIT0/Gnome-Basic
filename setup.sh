@@ -184,6 +184,10 @@ step_shortcuts() {
   done
   gsettings set org.gnome.mutter overlay-key 'Super_L'
   gsettings set org.gnome.shell.keybindings toggle-application-view "['<Super>a']"
+  # Vaciar switch-to-application-N (chocan con Super+1..5 de workspaces)
+  for i in 1 2 3 4 5 6 7 8 9; do
+    gsettings set org.gnome.shell.keybindings switch-to-application-$i "[]"
+  done
   gsettings reset org.gnome.shell.keybindings show-screenshot-ui 2>/dev/null || true
   gsettings reset org.gnome.shell.keybindings screenshot 2>/dev/null || true
   gsettings reset org.gnome.shell.keybindings screenshot-window 2>/dev/null || true
