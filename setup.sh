@@ -459,13 +459,6 @@ swap-priority = 100" | sudo tee /etc/systemd/zram-generator.conf >/dev/null || t
         echo "   ya estaba o no se encontró la raíz, omitido"
     fi
 
-    echo "→ preload"
-    case "$DISTRO" in
-        arch)   sudo pacman -S --needed --noconfirm preload || true ;;
-        fedora) sudo dnf install -y preload || true ;;
-    esac
-    sudo systemctl enable --now preload 2>/dev/null || true
-
     echo "Listo. Reinicia para aplicar todo (noatime, ZRAM, BBR)."
 }
 
@@ -504,7 +497,6 @@ EXTENSIONS=(
     "dash-to-dock@micxgx.gmail.com"
     "just-perfection-desktop@just-perfection"
     "caffeine@patapon.info"
-    "blur-my-shell@aunetx"
 )
 
 install_extensions() {
@@ -571,7 +563,7 @@ watch_defaults() {
         apply_shortcuts
         last="$cur"
     fi
-    sleep 5
+    sleep 30
   done
 }
 
