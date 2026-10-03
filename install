@@ -1,5 +1,6 @@
 #!/bin/bash
 # Instala todo de una sola vez
+set -e
 cd "$(dirname "$0")"
 ./setup.sh shortcuts
 ./setup.sh firefox
@@ -9,5 +10,12 @@ cd "$(dirname "$0")"
 ./setup.sh apps
 ./setup.sh gaming
 ./setup.sh flatpaks
+
+# Servicio que actualiza atajos cuando cambian las apps por defecto
+mkdir -p ~/.config/systemd/user
+sed "s|%h/Gzito-B/setup.sh|$PWD/setup.sh|" gnome-watch-defaults.service > ~/.config/systemd/user/gnome-watch-defaults.service
+systemctl --user daemon-reload
+systemctl --user enable --now gnome-watch-defaults.service
+
 echo ""
 echo "✅ Instalación completa terminada. Reinicia GNOME o la sesión."

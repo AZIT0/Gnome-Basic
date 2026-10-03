@@ -3,7 +3,7 @@ Description=Vigila apps predeterminadas y actualiza atajos de GNOME
 After=graphical-session.target
 
 [Service]
-ExecStart=%h/gnome-setup/setup.sh watch
+ExecStart=%h/Gzito-B/setup.sh watch
 Restart=on-failure
 RestartSec=5
 

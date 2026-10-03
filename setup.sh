@@ -568,7 +568,7 @@ watch_defaults() {
   while true; do
     cur="$(default_terminal)|$(default_browser)|$(default_filemanager)"
     if [ "$cur" != "$last" ]; then
-        [ -n "$last" ] && apply_shortcuts
+        apply_shortcuts
         last="$cur"
     fi
     sleep 5
