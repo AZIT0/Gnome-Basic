@@ -210,6 +210,59 @@ gaming_optimize() {
     echo "   (MangoHud se activa con: mangohud %command%)"
 }
 
+uninstall_all() {
+    log "Desinstalar/revertir todo lo aplicado por el script"
+    echo "Esto revertirá: atajos, flatpaks, extensiones, AUR, tweaks de sistema y servicio watcher."
+    read -p "¿Continuar? [y/N] " -n 1 -r; echo
+    [[ $REPLY =~ ^[Yy]$ ]] || { echo "Cancelado"; exit 0; }
+
+    echo "→ Deteniendo servicio watcher"
+    systemctl --user disable --now gnome-watch-defaults.service 2>/dev/null || true
+    rm -f ~/.config/systemd/user/gnome-watch-defaults.service
+    systemctl --user daemon-reload
+
+    echo "→ Restaurando atajos por defecto"
+    gsettings reset-recursively org.gnome.settings-daemon.plugins.media-keys
+    clear_schema org.gnome.desktop.wm.keybindings
+    clear_schema org.gnome.shell.keybindings
+    clear_schema org.gnome.mutter.keybindings
+    clear_schema org.gnome.mutter.wayland.keybindings
+
+    echo "→ Desinstalando Flatpaks de la lista"
+    for app in "${FLATPAKS[@]}"; do
+        flatpak uninstall -y "$app" 2>/dev/null || true
+    done
+
+    echo "→ Desinstalando extensiones"
+    for ext in "${EXTENSIONS[@]}"; do
+        gext uninstall "$ext" 2>/dev/null || true
+    done
+
+    echo "→ Desinstalando paquetes AUR de la lista"
+    if command -v paru &>/dev/null || command -v yay &>/dev/null; then
+        helper=$(command -v paru || command -v yay)
+        for pkg in "${AUR_PACKAGES[@]}"; do
+            "$helper" -Rns --noconfirm "$pkg" 2>/dev/null || true
+        done
+    fi
+
+    echo "→ Revirtiendo tweaks de sistema"
+    sudo rm -f /etc/systemd/zram-generator.conf
+    sudo rm -f /etc/sysctl.d/99-zram.conf /etc/sysctl.d/99-bbr.conf
+    [ -f /etc/fstab.bak ] && sudo cp /etc/fstab.bak /etc/fstab && echo "   /etc/fstab restaurado"
+    sudo systemctl disable --now preload 2>/dev/null || true
+    powerprofilesctl set balanced 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface enable-animations true
+    for s in tracker-miner-fs-3 tracker-extract-3 tracker-miner-rss-3; do
+        systemctl --user unmask "$s.service" 2>/dev/null || true
+    done
+    sudo sed -i 's/^SystemMaxUse=200M/#SystemMaxUse=/' /etc/systemd/journald.conf
+    sudo systemctl restart systemd-journald || true
+    sudo systemctl disable fstrim.timer 2>/dev/null || true
+
+    echo "✅ Todo revertido. Reinicia para aplicar todos los cambios."
+}
+
 install_apps() {
     log "Aplicaciones y tweaks"
     case "$DISTRO" in
@@ -435,7 +488,8 @@ case "${1:-}" in
     optimize) optimize_gnome ;;
     apps) install_apps ;;
     gaming) gaming_optimize ;;
+    uninstall) uninstall_all ;;
     *)
-        echo "Uso: $0 [backup|restore|install|shortcuts|apply-shortcuts|watch|firefox|flatpaks|extensions|aur|optimize|apps|gaming]"
+        echo "Uso: $0 [backup|restore|install|shortcuts|apply-shortcuts|watch|firefox|flatpaks|extensions|aur|optimize|apps|gaming|uninstall]"
         ;;
 esac
