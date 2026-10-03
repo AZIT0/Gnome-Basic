@@ -200,6 +200,7 @@ PACKAGES_ARCH=(
     ghostty
     power-profiles-daemon
     gedit
+    thunderbird
     qemu-desktop
     libvirt
     virt-manager
@@ -212,6 +213,7 @@ PACKAGES_FEDORA=(
     dconf-editor
     power-profiles-daemon
     gedit
+    thunderbird
     qemu-kvm
     libvirt
     virt-manager
