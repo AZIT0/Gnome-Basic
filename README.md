@@ -5,25 +5,25 @@ Script para configurar GNOME rápidamente tras una reinstalación. Soporta **Arc
 ## Uso con curl (sin git)
 
 ```bash
-curl -fsSL https://github.com/AZIT0/Gnome-Basic/archive/refs/heads/main.tar.gz -o /tmp/gnome-basic.tar.gz
+curl -fsSL https://github.com/AZIT0/Gzito-B/archive/refs/heads/main.tar.gz -o /tmp/gnome-basic.tar.gz
 tar xzf /tmp/gnome-basic.tar.gz -C /tmp
-cd /tmp/Gnome-Basic-main
+cd /tmp/Gzito-B-main
 ./install
 ```
 
 ## Uso rápido (todo de una vez)
 
 ```bash
-git clone https://github.com/AZIT0/Gnome-Basic.git
-cd Gnome-Basic
+git clone https://github.com/AZIT0/Gzito-B.git
+cd Gzito-B
 ./install
 ```
 
 O por pasos:
 
 ```bash
-git clone https://github.com/AZIT0/Gnome-Basic.git
-cd Gnome-Basic
+git clone https://github.com/AZIT0/Gzito-B.git
+cd Gzito-B
 chmod +x setup.sh
 ./setup.sh <comando>
 ```
@@ -32,7 +32,7 @@ chmod +x setup.sh
 
 | Comando | Qué hace |
 |---|---|
-| `backup` | Guarda la configuración de dconf en `~/.Gnome-Basic-backup` |
+| `backup` | Guarda la configuración de dconf en `~/.Gzito-B-backup` |
 | `restore` | Restaura la configuración guardada |
 | `install` | Instala paquetes base de GNOME según la distro |
 | `shortcuts` | Limpia atajos de GNOME y aplica los propios |
