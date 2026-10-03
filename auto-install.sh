@@ -1,9 +1,16 @@
 #!/bin/bash
-# Bootstrap: descarga Gzito-B y ejecuta ./install
+# Auto-install: descarga Gzito-B y ejecuta install o uninstall
+# Uso: curl ... | bash              (instala)
+#      curl ... | bash -s uninstall (desinstala/revierte)
 set -e
+ACTION="${1:-install}"
 URL="https://github.com/AZIT0/Gzito-B/archive/refs/heads/main.tar.gz"
 TMP=$(mktemp -d)
-curl -fsSL "$URL" -o "$TMP/gnome-basic.tar.gz"
-tar xzf "$TMP/gnome-basic.tar.gz" -C "$TMP"
+curl -fsSL "$URL" -o "$TMP/gzitob.tar.gz"
+tar xzf "$TMP/gzitob.tar.gz" -C "$TMP"
 cd "$TMP/Gzito-B-main"
-./install
+if [ "$ACTION" = "uninstall" ]; then
+    ./setup.sh uninstall
+else
+    ./install
+fi

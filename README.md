@@ -8,6 +8,12 @@ Script para configurar GNOME rápidamente tras una reinstalación. Soporta **Arc
 curl -fsSL https://raw.githubusercontent.com/AZIT0/Gzito-B/main/auto-install.sh | bash
 ```
 
+Para **desinstalar/revertir**:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AZIT0/Gzito-B/main/auto-install.sh | bash -s uninstall
+```
+
 ## Uso con curl (sin git)
 
 ```bash
