@@ -2,7 +2,15 @@
 
 Script para configurar GNOME rápidamente tras una reinstalación. Soporta **Arch** (CachyOS, Manjaro, EndeavourOS) y **Fedora**.
 
-## Uso
+## Uso rápido (todo de una vez)
+
+```bash
+git clone https://github.com/AZIT0/Gnome-Basic.git
+cd Gnome-Basic
+./install
+```
+
+O por pasos:
 
 ```bash
 git clone https://github.com/AZIT0/Gnome-Basic.git
