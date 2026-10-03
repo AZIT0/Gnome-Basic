@@ -53,8 +53,9 @@ log() { echo -e "\n▶ $*"; }
 
 clear_schema() {
     gsettings list-recursively "$1" 2>/dev/null | awk '{print $2}' | while read -r key; do
-        [ -n "$key" ] && gsettings reset "$1" "$key" 2>/dev/null
-    done
+        [ -n "$key" ] && gsettings reset "$1" "$key" 2>/dev/null || true
+    done || true
+    return 0
 }
 
 # -----------------------------------------------------------------------------
@@ -62,9 +63,9 @@ clear_schema() {
 # -----------------------------------------------------------------------------
 step_reset_shortcuts() {
   log "3 · Limpieza base de atajos"
-  gsettings reset-recursively org.gnome.settings-daemon.plugins.media-keys
-  dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/
-  dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/
+  gsettings reset-recursively org.gnome.settings-daemon.plugins.media-keys 2>/dev/null || true
+  dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/ 2>/dev/null || true
+  dconf reset -f /org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4/ 2>/dev/null || true
   clear_schema org.gnome.desktop.wm.keybindings
   clear_schema org.gnome.shell.keybindings
   clear_schema org.gnome.mutter.keybindings
@@ -81,27 +82,40 @@ mk_custom() { # n nombre comando tecla
 
 # Resolver app predeterminada del sistema a comando ejecutable
 default_browser() {
-    local desktop
-    desktop=$(xdg-settings get default-web-browser 2>/dev/null)
+    local desktop alt
+    desktop=$(xdg-settings get default-web-browser 2>/dev/null) || desktop=""
     case "$desktop" in
         *firefox*) echo "firefox --new-window" ;;
-        *chromium*|*chrome*) echo "chromium --new-window || google-chrome-stable --new-window" ;;
+        *chromium*) echo "chromium --new-window" ;;
+        *chrome*) echo "google-chrome-stable --new-window" ;;
         *brave*) echo "brave-browser --new-window" ;;
         *edge*) echo "microsoft-edge --new-window" ;;
-        *) [ -n "$desktop" ] && echo "${desktop%.desktop}" || echo "firefox" ;;
+        *opera*) echo "opera --new-window" ;;
+        *)
+            # Fallback: primer navegador realmente instalado
+            for alt in firefox firefox-developer-edition chromium google-chrome-stable brave-browser microsoft-edge opera; do
+                command -v "$alt" &>/dev/null && { echo "$alt"; return; }
+            done
+            echo "firefox"
+            ;;
     esac
 }
 
 default_filemanager() {
-    local desktop
-    desktop=$(xdg-mime query default inode/directory 2>/dev/null)
+    local desktop alt
+    desktop=$(xdg-mime query default inode/directory 2>/dev/null) || desktop=""
     case "$desktop" in
         *nautilus*|*org.gnome.Nautilus*) echo "nautilus --new-window" ;;
         *dolphin*) echo "dolphin" ;;
         *thunar*) echo "thunar" ;;
         *nemo*) echo "nemo" ;;
         *pcmanfm*) echo "pcmanfm" ;;
-        *) [ -n "$desktop" ] && echo "${desktop%.desktop}" || echo "nautilus" ;;
+        *)
+            for alt in nautilus dolphin thunar nemo pcmanfm; do
+                command -v "$alt" &>/dev/null && { echo "$alt"; return; }
+            done
+            echo "nautilus"
+            ;;
     esac
 }
 
@@ -170,9 +184,9 @@ step_shortcuts() {
   done
   gsettings set org.gnome.mutter overlay-key 'Super_L'
   gsettings set org.gnome.shell.keybindings toggle-application-view "['<Super>a']"
-  gsettings reset org.gnome.shell.keybindings show-screenshot-ui
-  gsettings reset org.gnome.shell.keybindings screenshot
-  gsettings reset org.gnome.shell.keybindings screenshot-window
+  gsettings reset org.gnome.shell.keybindings show-screenshot-ui 2>/dev/null || true
+  gsettings reset org.gnome.shell.keybindings screenshot 2>/dev/null || true
+  gsettings reset org.gnome.shell.keybindings screenshot-window 2>/dev/null || true
 }
 
 shortcuts() {
@@ -187,18 +201,22 @@ FLATPAKS=(
 
 install_flatpaks() {
     log "Flatpaks"
+    if ! command -v flatpak &>/dev/null; then
+        echo "(aviso) flatpak no está instalado, omitido"
+        return 0
+    fi
     # Asegurar Flathub
-    if ! flatpak remotes | grep -q flathub; then
+    if ! flatpak remotes 2>/dev/null | grep -q flathub; then
         echo "Agregando remote Flathub..."
-        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+        flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo || true
     fi
     if [ ${#FLATPAKS[@]} -eq 0 ]; then
         echo "(aviso) Lista de Flatpaks vacía, edita FLATPAKS en el script"
-        return
+        return 0
     fi
     for app in "${FLATPAKS[@]}"; do
         echo "Instalando $app..."
-        flatpak install -y flathub "$app"
+        flatpak install -y flathub "$app" || echo "(aviso) falló $app"
     done
 }
 
@@ -244,7 +262,8 @@ gaming_optimize() {
 uninstall_all() {
     log "Desinstalar/revertir todo lo aplicado por el script"
     echo "Esto revertirá: atajos, flatpaks, extensiones, AUR, tweaks de sistema y servicio watcher."
-    read -p "¿Continuar? [y/N] " -n 1 -r; echo
+    read -p "¿Continuar? [y/N] " -n 1 -r || REPLY=""
+    echo
     [[ $REPLY =~ ^[Yy]$ ]] || { echo "Cancelado"; exit 0; }
 
     echo "→ Deteniendo servicio watcher"
@@ -347,8 +366,8 @@ install_aur() {
 
 detect_gpu() {
     local gpu
-    gpu=$(lspci -nn | grep -Ei 'vga compatible|3d controller|display controller')
-    echo "$gpu"
+    gpu=$(lspci -nn 2>/dev/null | grep -Ei 'vga compatible|3d controller|display controller' || true)
+    echo "${gpu:-GPU no detectada}"
 }
 
 system_optimize() {
@@ -425,21 +444,20 @@ optimize_gnome() {
         echo "→ NVIDIA: se recomienda usar el modo Wayland con el driver 555+"
     elif echo "$gpu" | grep -qi amd; then
         echo "→ AMD: instalando/verificando drivers Vulkan Radeon"
-        [ "$DISTRO" = "arch" ] && sudo pacman -S --needed --noconfirm vulkan-radeon lib32-vulkan-radeon
-        [ "$DISTRO" = "fedora" ] && sudo dnf install -y mesa-vulkan-drivers
+        if [ "$DISTRO" = "arch" ]; then sudo pacman -S --needed --noconfirm vulkan-radeon lib32-vulkan-radeon || true; fi
+        if [ "$DISTRO" = "fedora" ]; then sudo dnf install -y mesa-vulkan-drivers || true; fi
     elif echo "$gpu" | grep -qi intel; then
         echo "→ Intel: instalando/verificando drivers Vulkan Intel"
-        [ "$DISTRO" = "arch" ] && sudo pacman -S --needed --noconfirm vulkan-intel lib32-vulkan-intel
-        [ "$DISTRO" = "fedora" ] && sudo dnf install -y mesa-vulkan-drivers
+        if [ "$DISTRO" = "arch" ]; then sudo pacman -S --needed --noconfirm vulkan-intel lib32-vulkan-intel || true; fi
+        if [ "$DISTRO" = "fedora" ]; then sudo dnf install -y mesa-vulkan-drivers || true; fi
     fi
 
     # Tweaks seguros
     echo "→ Habilitando variable refresh rate (VRR) en Mutter si está soportado"
     gsettings set org.gnome.mutter experimental-features "['variable-refresh-rate']" 2>/dev/null || \
         echo "   (no soportado en esta versión, omitido)"
-    echo "→ Forzando hardware cursors desactivados solo si es X11"
     if [ "$XDG_SESSION_TYPE" = "x11" ]; then
-        gsettings set org.gnome.desktop.interface gtk-enable-animations true
+        gsettings set org.gnome.desktop.interface gtk-enable-animations true || true
     fi
     echo "Listo. Algunas opciones se aplican tras reiniciar sesión."
     system_optimize
