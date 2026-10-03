@@ -138,6 +138,10 @@ step_shortcuts() {
   mk_custom 1 'Navegador' "$BROWSER_CMD" '<Super>w'
   mk_custom 2 'Archivos'  "$FILES_CMD"   '<Super>e'
 
+  # Asegurar workspaces fijos para que Super+1..5 siempre funcionen
+  gsettings set org.gnome.mutter dynamic-workspaces false
+  gsettings set org.gnome.desktop.wm.preferences num-workspaces 5
+
   gsettings set "$WM" close "['<Super>q', '<Alt>F4']"
   gsettings set "$WM" toggle-fullscreen "['<Super>f']"
   gsettings set "$WM" panel-run-dialog "['<Alt>F2']"
