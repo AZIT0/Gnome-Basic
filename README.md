@@ -2,6 +2,12 @@
 
 Script para configurar GNOME rápidamente tras una reinstalación. Soporta **Arch** (CachyOS, Manjaro, EndeavourOS) y **Fedora**.
 
+## Instalación con una línea (curl)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/AZIT0/Gzito-B/main/auto-install.sh | bash
+```
+
 ## Uso con curl (sin git)
 
 ```bash
