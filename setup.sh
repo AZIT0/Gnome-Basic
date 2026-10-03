@@ -138,6 +138,12 @@ step_shortcuts() {
   mk_custom 1 'Navegador' "$BROWSER_CMD" '<Super>w'
   mk_custom 2 'Archivos'  "$FILES_CMD"   '<Super>e'
 
+  # Desactivar atajos de Dash to Dock que chocan con los nuestros
+  dconf write /org/gnome/shell/extensions/dash-to-dock/shortcut "@as []"
+  for i in 1 2 3 4 5 6 7 8 9 10; do
+    dconf write /org/gnome/shell/extensions/dash-to-dock/app-hotkey-$i "@as []"
+  done
+
   # Asegurar workspaces fijos para que Super+1..5 siempre funcionen
   gsettings set org.gnome.mutter dynamic-workspaces false
   gsettings set org.gnome.desktop.wm.preferences num-workspaces 5
