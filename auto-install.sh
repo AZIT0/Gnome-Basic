@@ -10,7 +10,7 @@ curl -fsSL "$URL" -o "$TMP/gzitob.tar.gz"
 tar xzf "$TMP/gzitob.tar.gz" -C "$TMP"
 cd "$TMP/Gzito-B-main"
 if [ "$ACTION" = "uninstall" ]; then
-    ./setup.sh uninstall
+    ./setup.sh uninstall < /dev/tty
 else
-    ./install
+    ./install < /dev/tty
 fi
