@@ -1,0 +1,13 @@
+#!/bin/bash
+# Instala todo de una sola vez
+cd "$(dirname "$0")"
+./setup.sh shortcuts
+./setup.sh firefox
+./setup.sh extensions
+./setup.sh aur
+./setup.sh optimize
+./setup.sh apps
+./setup.sh gaming
+./setup.sh flatpaks
+echo ""
+echo "✅ Instalación completa terminada. Reinicia GNOME o la sesión."
